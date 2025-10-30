@@ -2,12 +2,14 @@ variable "tenant_id" {
   description = "The Tenant ID for the Azure Active Directory."
   type        = string
   sensitive   = true
+  default = "value"
 }
 
 variable "subscription_id" {
   description = "The Subscription ID for the Azure subscription."
   type        = string
   sensitive   = true
+  default = "value"
 }
 
 variable "resource_group_name" {
