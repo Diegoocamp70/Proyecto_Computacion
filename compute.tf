@@ -91,7 +91,7 @@ resource "azurerm_linux_virtual_machine" "Maquinas_Virtuales" {
 #     username   = "adminuser"
 #     public_key = file("~/.ssh/id_rsa.pub")
 #   
-#
+
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
