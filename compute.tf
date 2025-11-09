@@ -10,7 +10,7 @@ resource "azurerm_key_vault" "kv" {
   access_policy {
     tenant_id = var.tenant_id
     object_id = var.owner_object_id
-    secret_permissions = ["get", "list", "set"]
+    secret_permissions = ["Get", "List", "Set"]
   }
   tags = {
     environment = "Development"

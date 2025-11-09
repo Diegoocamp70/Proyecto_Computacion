@@ -5,10 +5,10 @@
 # 1. Definir presupuesto mensual ( $50 USD)
 resource "azurerm_consumption_budget_subscription" "monthly_budget" {
   name            = "hc-monthly-budget"
-  subscription_id = var.subscription_id
+  subscription_id = "/subscriptions/${var.subscription_id}"
   amount          = 50
   time_grain      = "Monthly"
-
+  
   time_period {
     start_date = "2025-11-01T00:00:00Z"
     end_date   = "2025-12-01T00:00:00Z"
