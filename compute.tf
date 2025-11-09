@@ -1,27 +1,54 @@
-resource "azurerm_service_plan" "Azure_service_plan" {
-  name                = "Azure_service_plan"
-  resource_group_name = azurerm_resource_group.rg.name
+# Key Vault básico para estudiantes
+resource "azurerm_key_vault" "kv" {
+  name                        = "hckeyvault${random_integer.suffix.result}"
+  location                    = azurerm_resource_group.rg.location
+  resource_group_name         = azurerm_resource_group.rg.name
+  tenant_id                   = var.tenant_id
+  sku_name                    = "standard"
+  # soft_delete_enabled         = true
+  purge_protection_enabled    = false
+  access_policy {
+    tenant_id = var.tenant_id
+    object_id = var.owner_object_id
+    secret_permissions = ["get", "list", "set"]
+  }
+  tags = {
+    environment = "Development"
+    project     = "Projecto_inicial"
+    name        = "key_vault"
+  }
+}
+
+# Sufijo aleatorio para nombre único de Key Vault
+resource "random_integer" "suffix" {
+  min = 10000
+  max = 99999
+}
+# Plan de App Service gratuito
+
+resource "azurerm_service_plan" "plan" {
+  name                = "hcappserviceplan"
   location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   os_type             = "Linux"
   sku_name            = "F1"
- 
-    tags = {
-        environment = "Development"
-        project     = "Projecto_inicial"
-        name        = "Azure_service_plan"
-    }
-
+  tags = {
+    environment = "Development"
+    project     = "Projecto_inicial"
+    name        = "app_service_plan"
+  }
 }
+ 
 
 
 resource "azurerm_linux_function_app" "azure_function" {
-  name                = "example-linux-function-app"
+  name                = "examplelinuxfunctionapp"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
-  storage_account_name       = azurerm_storage_account.example.name
-  storage_account_access_key = azurerm_storage_account.example.primary_access_key
-  service_plan_id            = azurerm_service_plan.Azure_service_plan.id
+  storage_account_name       = azurerm_storage_account.almacenamiento.name
+  storage_account_access_key = azurerm_storage_account.almacenamiento.primary_access_key
+  service_plan_id            = azurerm_service_plan.plan.id
 
   site_config {}
 
@@ -35,22 +62,22 @@ resource "azurerm_linux_function_app" "azure_function" {
 
 
 resource "azurerm_container_app_environment" "container_environment" {
-  name                       = "container-app-env"
+  name                       = "containerappenv"
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.example.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.log_analytics.id
 }
 
 resource "azurerm_container_app" "Azure_container_app" {
-  name                         = "container_app"
+  name                         = "containerapp"
   container_app_environment_id = azurerm_container_app_environment.container_environment.id
   resource_group_name          = azurerm_resource_group.rg.name
   revision_mode                = "Single"
 
   template {
     container {
-      name   = "container_app_instance"
-      image  = "--YOUR_CONTAINER_IMAGE--"
+      name   = "containerappinstance"
+      image  = "linuxserver/nextcloud:latest"
       cpu    = 0.25
       memory = "0.5Gi"
     }
@@ -65,7 +92,7 @@ resource "azurerm_container_app" "Azure_container_app" {
 
 
 resource "azurerm_network_interface" "Interface_machine" {
-  name                = "example-nic"
+  name                = "examplenic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -78,7 +105,7 @@ resource "azurerm_network_interface" "Interface_machine" {
 
 
 resource "azurerm_linux_virtual_machine" "Maquinas_Virtuales" {
-  name                = "Maquinas-Vir"
+  name                = "MaquinasVir"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
